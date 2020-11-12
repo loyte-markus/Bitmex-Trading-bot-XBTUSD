@@ -26,3 +26,5 @@ ConsoleApp1/obj/Debug/netcoreapp3.0/ConsoleApp1.dll
 ConsoleApp1/obj/Debug/netcoreapp3.0/ConsoleApp1.exe
 ConsoleApp1/obj/Debug/netcoreapp3.0/ConsoleApp1.pdb
 ConsoleApp1/obj/project.assets.json
+/.vs
+/ConsoleApp1/obj

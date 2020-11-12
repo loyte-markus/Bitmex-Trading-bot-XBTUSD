@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 
@@ -23,10 +24,10 @@ namespace ConsoleApp1
             BitMEXApi bitmex = new BitMEXApi(bitmexKey, bitmexSecret);
             while (true)
             {
-                string fetchGetPrice = bitmex.getPrice();
-                List<Trade> getPriceList = JsonConvert.DeserializeObject<List<Trade>>(fetchGetPrice);
-                XBTUSD_prize = getPriceList[0].price;
-                time = getPriceList[0].timestamp;
+                var priceList = bitmex.GetPrice();
+
+                XBTUSD_prize = priceList[0].price;
+                time = priceList[0].timestamp;
 
                 Console.WriteLine(XBTUSD_prize);
                 Console.WriteLine(time.Hour + ":" + time.Minute + ":" + time.Second);
@@ -37,7 +38,7 @@ namespace ConsoleApp1
         }
     }
 
-    class Trade
+    public class Trade
     {
         public DateTime timestamp { get; set; }
         public string symbol { get; set; }

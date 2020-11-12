@@ -1,4 +1,5 @@
 ﻿//using ServiceStack.Text;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -145,13 +146,14 @@ namespace ConsoleApp1
             return Query("GET", "/position", param, true);
         }
 
-        public string getPrice()
+        public List<Trade> GetPrice()
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = "XBTUSD";
             param["count"] = "1";
             param["reverse"] = "true";
-            return Query("GET", "/trade", param, true);
+            return JsonConvert.DeserializeObject<List<Trade>>(Query("GET", "/trade", param, true));
+
         }
         public string PostTestOrder()
         {
