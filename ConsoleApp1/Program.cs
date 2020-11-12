@@ -33,7 +33,7 @@ namespace ConsoleApp1 {
 
 
         if(order == null) {
-          if(DateTime.UtcNow.Minute == 00) {
+          if(now.Minute == 00) {
             var HH = now.Subtract(new TimeSpan(3, 0, 0)).ToString("HH");
             var old3 = JsonConvert.DeserializeObject<List<Trade>>(bitmex.GetPrice(HH).ResponseData).FirstOrDefault();
 
