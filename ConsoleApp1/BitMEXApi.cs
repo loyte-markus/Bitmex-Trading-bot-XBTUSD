@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -140,20 +141,21 @@ namespace ConsoleApp1
         //    return JsonSerializer.DeserializeFromString<List<OrderBookItem>>(res);
         //}
 
-        public string GetOpenOrders()
+        public OpenOrder GetOpenOrder()
         {
             var param = new Dictionary<string, string>();
             param["filter"] = "{\"isOpen\": true}";
-            return Query("GET", "/position", param, true);
+            param["count"] = "1";
+            return JsonConvert.DeserializeObject <List<OpenOrder>>(Query("GET", "/position", param, true)).FirstOrDefault();
         }
 
-        public List<Trade> GetPrice()
+        public Trade GetPrice()
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = "XBTUSD";
             param["count"] = "1";
             param["reverse"] = "true";
-            return JsonConvert.DeserializeObject<List<Trade>>(Query("GET", "/trade", param, true));
+            return JsonConvert.DeserializeObject<List<Trade>>(Query("GET", "/trade", param, true)).FirstOrDefault();
 
         }
         public string PostTestOrder()

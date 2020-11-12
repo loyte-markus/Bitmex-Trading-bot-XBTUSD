@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,14 +7,34 @@ namespace ConsoleApp1.Models
 {
     public class Trade
     {
-        public DateTime timestamp { get; set; }
-        public string symbol { get; set; }
-        public string side { get; set; }
-        public int size { get; set; }
-        public double price { get; set; }
-        public string tickDirection { get; set; }
-        public double grossValue { get; set; }
-        public double homeNotional { get; set; }
-        public double foreignNotional { get; set; }
+        [JsonProperty("timestamp")]
+        public DateTime Timestamp { get; set; }
+
+        [JsonProperty("symbol")]
+        public string Symbol { get; set; }
+
+        [JsonProperty("side")]
+        public string Side { get; set; }
+
+        [JsonProperty("size")]
+        public long Size { get; set; }
+
+        [JsonProperty("price")]
+        public long Price { get; set; }
+
+        [JsonProperty("tickDirection")]
+        public string TickDirection { get; set; }
+
+        [JsonProperty("trdMatchID")]
+        public string TrdMatchId { get; set; }
+
+        [JsonProperty("grossValue")]
+        public long GrossValue { get; set; }
+
+        [JsonProperty("homeNotional")]
+        public long HomeNotional { get; set; }
+
+        [JsonProperty("foreignNotional")]
+        public long ForeignNotional { get; set; }
     }
 }

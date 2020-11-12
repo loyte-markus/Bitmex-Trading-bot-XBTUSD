@@ -25,8 +25,13 @@ namespace ConsoleApp1
             while (true)
             {
                 var priceList = bitmex.GetPrice();
-                XBTUSD_prize = priceList[0].price;
-                time = priceList[0].timestamp;
+                XBTUSD_prize = priceList.Price;
+                time = priceList.Timestamp;
+                var x = bitmex.GetOpenOrder();
+                if (x == null)
+                {
+                    
+                }
                  /*
                  if(a.length==2){
                     //Vi har ikke en posisjon åpen, se etter mulighet for åpning av posisjon
