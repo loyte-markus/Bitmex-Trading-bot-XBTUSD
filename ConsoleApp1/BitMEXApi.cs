@@ -1,4 +1,5 @@
 ﻿//using ServiceStack.Text;
+using ConsoleApp1.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -25,29 +25,26 @@ namespace ConsoleApp1
             while (true)
             {
                 var priceList = bitmex.GetPrice();
-
                 XBTUSD_prize = priceList[0].price;
                 time = priceList[0].timestamp;
-
-                Console.WriteLine(XBTUSD_prize);
-                Console.WriteLine(time.Hour + ":" + time.Minute + ":" + time.Second);
-
-
+                 /*
+                 if(a.length==2){
+                    //Vi har ikke en posisjon åpen, se etter mulighet for åpning av posisjon
+                    if(time.Minute == 0){
+                        //Vi skal nå sjekke om vi vil gjøre en trade
+                        //Om de tre forrige timesbarene går høyere enn hverandre, kjør inn en long posisjon
+                        //Om de tre forrige timesbarene går lavere enn hverandre, kjør inn en short posisjon
+                    }
+                 }
+                 else{
+                    //Vi har nå en posisjon åpen, pass på rundt pris sånn at den blir solgt riktig
+                    //Stoplossen settes først til +/-X%(1?) av entryprice
+                    //Om vi plusser 1% prosent så settes stoplossen til å være på f.eks 0.6% profit
+                    //Stoplossen skal gå opp dynamisk, så om vi er på 2% profit så skal stoplossen være på 1.2%
+                 }
+                 */
                 Thread.Sleep(1000);
             }            
         }
-    }
-
-    public class Trade
-    {
-        public DateTime timestamp { get; set; }
-        public string symbol { get; set; }
-        public string side { get; set; }
-        public int size { get; set; }
-        public double price { get; set; }
-        public string tickDirection { get; set; }
-        public double grossValue { get; set; }
-        public double homeNotional { get; set; }
-        public double foreignNotional { get; set; }
     }
 }
