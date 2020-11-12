@@ -74,7 +74,7 @@ namespace ConsoleApp1
             return DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600; // set expires one hour in the future
         }
 
-        private string Query(string method, string function, Dictionary<string, string> param = null, bool auth = false, bool json = false)
+        private APIResponse Query(string method, string function, Dictionary<string, string> param = null, bool auth = false, bool json = false)
         {
             string paramData = json ? BuildJSON(param) : BuildQueryData(param);
             string url = "/api/v1" + function + ((method == "GET" && paramData != "") ? "?" + paramData : "");
@@ -95,6 +95,7 @@ namespace ConsoleApp1
                 webRequest.Headers.Add("api-signature", signatureString);
             }
 
+            var apiResponse = new APIResponse();
             try
             {
                 if (postData != "")
@@ -107,29 +108,37 @@ namespace ConsoleApp1
                     }
                 }
 
-                using (WebResponse webResponse = webRequest.GetResponse())
-                using (Stream str = webResponse.GetResponseStream())
-                using (StreamReader sr = new StreamReader(str))
-                {
-                    return sr.ReadToEnd();
+              using(WebResponse webResponse = webRequest.GetResponse()) {
+
+                var date = webResponse.Headers["date"];
+                if(!string.IsNullOrEmpty(date)) {
+                  apiResponse.TimeStampUTC = DateTime.Parse(webResponse.Headers["date"]).ToUniversalTime();
                 }
+                using(Stream str = webResponse.GetResponseStream()) {
+                  using(StreamReader sr = new StreamReader(str)) {
+                    apiResponse.ResponseData = sr.ReadToEnd();
+                  }
+                }
+              }
+                
             }
             catch (WebException wex)
             {
                 using (HttpWebResponse response = (HttpWebResponse)wex.Response)
                 {
-                    if (response == null)
-                        throw;
-
+                    if (response == null) {
+                      throw;
+                    }
                     using (Stream str = response.GetResponseStream())
                     {
                         using (StreamReader sr = new StreamReader(str))
                         {
-                            return sr.ReadToEnd();
+                            apiResponse.ResponseData = sr.ReadToEnd();
                         }
                     }
                 }
             }
+          return apiResponse;
         }
 
         //public List<OrderBookItem> GetOrderBook(string symbol, int depth)
@@ -141,44 +150,60 @@ namespace ConsoleApp1
         //    return JsonSerializer.DeserializeFromString<List<OrderBookItem>>(res);
         //}
 
-        public OpenOrder GetOpenOrder()
+        public APIResponse GetOpenOrder()
         {
             var param = new Dictionary<string, string>();
             param["filter"] = "{\"isOpen\": true}";
             param["count"] = "1";
-            return JsonConvert.DeserializeObject <List<OpenOrder>>(Query("GET", "/position", param, true)).FirstOrDefault();
+            return Query("GET", "/position", param, true);
         }
 
-        public Trade GetPrice()
+        public APIResponse GetPrice(Dictionary<string, string> param)
         {
-            var param = new Dictionary<string, string>();
+            if(param == null) { param = new Dictionary<string, string>(); }
             param["symbol"] = "XBTUSD";
             param["count"] = "1";
             param["reverse"] = "true";
-            return JsonConvert.DeserializeObject<List<Trade>>(Query("GET", "/trade", param, true)).FirstOrDefault();
+            
+            return Query("GET", "/trade", param, true);
 
         }
-        public string PostTestOrder()
+
+        public APIResponse GetPrice() {
+          return GetPrice(null);
+
+        }
+
+        public APIResponse GetPrice(string hh, Dictionary<string, string> param = null) {
+          if(param == null) { param = new Dictionary<string, string>(); }
+          var ts = new Dictionary<string, string>();
+          ts["timestamp.hh"] = hh;
+          ts["timestamp.uu"] = "59";
+          param["filter"] = JsonConvert.SerializeObject(ts, Formatting.None);
+          return GetPrice(param);
+
+        }
+    public string PostTestOrder()
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = "XBTUSD";
             param["side"] = "Buy";
             param["orderQty"] = "1";
             param["ordType"] = "Market";
-            return Query("POST", "/order", param, true);
+            return Query("POST", "/order", param, true).ResponseData;
         }
 
         public string CancelAllOrders()
         {
             var param = new Dictionary<string, string>();
-            return Query("DELETE", "/order/all", param, true, false);
+            return Query("DELETE", "/order/all", param, true, false).ResponseData;
         }
 
         public string closePosition()
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = "XBTUSD";
-            return Query("POST", "/order/closePosition", param, true, false);
+            return Query("POST", "/order/closePosition", param, true, false).ResponseData;
         }
 
         public string DeleteOrders()
@@ -186,7 +211,7 @@ namespace ConsoleApp1
             var param = new Dictionary<string, string>();
             param["orderID"] = "71788785-2ed3-4b69-831f-a7d824d164ea";
             param["text"] = "cancel order by ID";
-            return Query("DELETE", "/order", param, true, true);
+            return Query("DELETE", "/order", param, true, true).ResponseData;
         }
 
         private byte[] hmacsha256(byte[] keyByte, byte[] messageBytes)
