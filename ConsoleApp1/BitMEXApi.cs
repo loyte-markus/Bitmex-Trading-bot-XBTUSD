@@ -171,6 +171,25 @@ namespace ConsoleApp1 {
       return Query("POST", "/order", param, true).ResponseData;
     }
 
+    public string LongOrder(int amount) {
+      var param = new Dictionary<string, string>();
+      param["symbol"] = "XBTUSD";
+      param["side"] = "Buy";
+      param["orderQty"] = amount.ToString();
+      param["ordType"] = "Market";
+      return Query("POST", "/order", param, true).ResponseData;
+    }
+
+    public string ShortOrder(int amount) {
+      var param = new Dictionary<string, string>();
+      param["symbol"] = "XBTUSD";
+      param["side"] = "Sell";
+      param["orderQty"] = amount.ToString();
+      param["ordType"] = "Market";
+      return Query("POST", "/order", param, true).ResponseData;
+    }
+
+
     public string CancelAllOrders() {
       var param = new Dictionary<string, string>();
       return Query("DELETE", "/order/all", param, true, false).ResponseData;

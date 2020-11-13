@@ -9,6 +9,7 @@ namespace ConsoleApp1 {
   public class Program {
     private static string bitmexKey = System.IO.File.ReadAllText(@"C:\bitmexKey.txt");
     private static string bitmexSecret = System.IO.File.ReadAllText(@"C:\bitmexSecret.txt");
+    private static double BTC_per_trade = 0.02;
 
     private static void Main(string[] args) {
       Program p = new Program();
@@ -44,8 +45,16 @@ namespace ConsoleApp1 {
 
             if(old3.Close > old2.Close  && old2.Close > old1.Close) {
               Log("We can short!");
-            }else if(old1.Close> old2.Close && old2.Close > old3.Close) {
+              var priceResponse = bitmex.GetPrice();
+              var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
+              double usdval = priceList.FirstOrDefault().Price * BTC_per_trade;
+              bitmex.ShortOrder((int)usdval);
+            } else if(old1.Close> old2.Close && old2.Close > old3.Close) {
               Log("We can long!");
+              var priceResponse = bitmex.GetPrice();
+              var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
+              double usdval = priceList.FirstOrDefault().Price * BTC_per_trade;
+              bitmex.LongOrder((int)usdval);
             }
             Thread.Sleep(5000);
           }
