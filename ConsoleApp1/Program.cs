@@ -9,7 +9,6 @@ namespace ConsoleApp1 {
   public class Program {
     private static string bitmexKey = System.IO.File.ReadAllText(@"C:\bitmexKey.txt");
     private static string bitmexSecret = System.IO.File.ReadAllText(@"C:\bitmexSecret.txt");
-    
 
     private static void Main(string[] args) {
       Program p = new Program();
@@ -22,53 +21,40 @@ namespace ConsoleApp1 {
       BitMEXApi bitmex = new BitMEXApi(bitmexKey, bitmexSecret);
 
 
-      DateTime now;
-
+      DateTime now = DateTime.Now;
+      
 
       while(true) {
-
         var openOrderReponse = bitmex.GetOpenOrder();
         var order = JsonConvert.DeserializeObject<List<OpenOrder>>(openOrderReponse.ResponseData).FirstOrDefault();
-        now = openOrderReponse.TimeStampUTC;
-
-
-        if(order == null) {
+        try { now = openOrderReponse.TimeStampUTC; } catch(Exception e) {
+          Console.WriteLine(e);
+        }
+        if (order == null) {
           if(now.Minute == 00) {
-            var HH = now.Subtract(new TimeSpan(3, 0, 0)).ToString("HH");
-            var old3 = JsonConvert.DeserializeObject<List<Trade>>(bitmex.GetPrice(HH).ResponseData).FirstOrDefault();
-
-            HH = now.Subtract(new TimeSpan(2, 0, 0)).ToString("HH");
-            var old2 = JsonConvert.DeserializeObject<List<Trade>>(bitmex.GetPrice(HH).ResponseData).FirstOrDefault();
+            Log(now.ToString());
+            var HH = now.Subtract(new TimeSpan(2, 0, 0)).ToString("HH");
+            var old3 = JsonConvert.DeserializeObject<List<TradeBucketed>>(bitmex.Get1hCandle(HH).ResponseData).FirstOrDefault();
 
             HH = now.Subtract(new TimeSpan(1, 0, 0)).ToString("HH");
-            var old1 = JsonConvert.DeserializeObject<List<Trade>>(bitmex.GetPrice(HH).ResponseData).FirstOrDefault();
+            var old2 = JsonConvert.DeserializeObject<List<TradeBucketed>>(bitmex.Get1hCandle(HH).ResponseData).FirstOrDefault();
 
-            if(old3.Price > old2.Price  && old2.Price > old1.Price) {
+            HH = now.Subtract(new TimeSpan(0, 0, 0)).ToString("HH");
+            var old1 = JsonConvert.DeserializeObject<List<TradeBucketed>>(bitmex.Get1hCandle(HH).ResponseData).FirstOrDefault();
+
+            if(old3.Close > old2.Close  && old2.Close > old1.Close) {
               Log("We can short!");
-            }else if(old1.Price> old2.Price && old2.Price > old3.Price) {
+            }else if(old1.Close> old2.Close && old2.Close > old3.Close) {
               Log("We can long!");
             }
-
-            Thread.Sleep(60000);
+            Thread.Sleep(5000);
           }
         }else {
           var priceResponse = bitmex.GetPrice();
           var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
 
         }
-
-
-
-
         /*
-        if(a.length==2){
-           //Vi har ikke en posisjon åpen, se etter mulighet for åpning av posisjon
-           if(time.Minute == 0){
-               //Vi skal nå sjekke om vi vil gjøre en trade
-               //Om de tre forrige timesbarene går høyere enn hverandre, kjør inn en long posisjon
-               //Om de tre forrige timesbarene går lavere enn hverandre, kjør inn en short posisjon
-           }
-        }
         else{
            //Vi har nå en posisjon åpen, pass på rundt pris sånn at den blir solgt riktig
            //Stoplossen settes først til +/-X%(1?) av entryprice
@@ -77,7 +63,7 @@ namespace ConsoleApp1 {
         }
         */
 
-        Thread.Sleep(1000);
+        Thread.Sleep(1250);
       }
     }
 
