@@ -78,12 +78,19 @@ namespace ConsoleApp1 {
             //Long
             if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 0.99;
             if(takeProfit == 0) takeProfit = (double)order.AvgCostPrice * 1.01;
-
-
+            if(priceList.FirstOrDefault().Price < stopLoss) {
+              bitmex.closePosition();
+              takeProfit = 0;
+              stopLoss = 0;
+              Log("Order closed.");
+            }
+            if(priceList.FirstOrDefault().Price > takeProfit) {
+              stopLoss = takeProfit * 0.998;
+              takeProfit = takeProfit * 1.005;
+              Log("Stop Loss & Take Profit ++");
+            }
           }
-
         }
-
         Thread.Sleep(1250);
       }
     }
