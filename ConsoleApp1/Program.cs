@@ -11,6 +11,7 @@ namespace ConsoleApp1 {
     private static string bitmexSecret = System.IO.File.ReadAllText(@"C:\bitmexSecret.txt");
     private const double BTC_per_trade = 0.02;
     private double stopLoss = 0;
+    private double takeProfit = 0;
 
     private static void Main(string[] args) {
       Program p = new Program();
@@ -22,7 +23,6 @@ namespace ConsoleApp1 {
       DateTime now = DateTime.Now;
       
       while(true) {
-
         var openOrderReponse = bitmex.GetOpenOrder();
         var order = JsonConvert.DeserializeObject<List<OpenOrder>>(openOrderReponse.ResponseData).FirstOrDefault();
         try { now = openOrderReponse.TimeStampUTC; } catch(Exception e) {
@@ -62,9 +62,20 @@ namespace ConsoleApp1 {
           if(order.CurrentQty<0) {
             //Short
             if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 1.01;
+            if(takeProfit == 0) takeProfit = (double)order.AvgCostPrice * 0.99;
+            if(priceList.FirstOrDefault().Price < stopLoss) {
+              bitmex.closePosition();
+            }
+            if(priceList.FirstOrDefault().Price > takeProfit) {
+              stopLoss = takeProfit * 1.002;
+              takeProfit = takeProfit * 0.995;
+            }
           } else {
             //Long
             if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 0.99;
+            if(takeProfit == 0) takeProfit = (double)order.AvgCostPrice * 1.01;
+
+
           }
 
         }
@@ -81,6 +92,9 @@ namespace ConsoleApp1 {
       }
     }
 
+    private void setSLTP() {
+
+    }
     private void Log(string msg) {
       Console.WriteLine(msg);
     }
