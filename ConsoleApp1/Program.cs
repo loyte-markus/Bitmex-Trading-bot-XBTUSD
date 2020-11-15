@@ -42,13 +42,13 @@ namespace ConsoleApp1 {
             var old1 = JsonConvert.DeserializeObject<List<TradeBucketed>>(bitmex.Get1hCandle(HH).ResponseData).FirstOrDefault();
 
             if(old3.Close > old2.Close  && old2.Close > old1.Close) {
-              Log("We can short!");
+              Log("Placing short order...");
               var priceResponse = bitmex.GetPrice();
               var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
               double usdval = priceList.FirstOrDefault().Price * BTC_per_trade;
               bitmex.ShortOrder((int)usdval);
             } else if(old1.Close> old2.Close && old2.Close > old3.Close) {
-              Log("We can long!");
+              Log("Placing long order...");
               var priceResponse = bitmex.GetPrice();
               var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
               double usdval = priceList.FirstOrDefault().Price * BTC_per_trade;
@@ -63,12 +63,16 @@ namespace ConsoleApp1 {
             //Short
             if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 1.01;
             if(takeProfit == 0) takeProfit = (double)order.AvgCostPrice * 0.99;
-            if(priceList.FirstOrDefault().Price < stopLoss) {
+            if(priceList.FirstOrDefault().Price > stopLoss) {
               bitmex.closePosition();
+              takeProfit = 0;
+              stopLoss = 0;
+              Log("Order closed.");
             }
-            if(priceList.FirstOrDefault().Price > takeProfit) {
+            if(priceList.FirstOrDefault().Price < takeProfit) {
               stopLoss = takeProfit * 1.002;
               takeProfit = takeProfit * 0.995;
+              Log("Stop Loss & Take Profit ++");
             }
           } else {
             //Long
@@ -79,14 +83,6 @@ namespace ConsoleApp1 {
           }
 
         }
-        /*
-        else{
-           //Vi har nå en posisjon åpen, pass på rundt pris sånn at den blir solgt riktig
-           //Stoplossen settes først til +/-X%(1?) av entryprice
-           //Om vi plusser 1% prosent så settes stoplossen til å være på f.eks 0.6% profit
-           //Stoplossen skal gå opp dynamisk, så om vi er på 2% profit så skal stoplossen være på 1.2%
-        }
-        */
 
         Thread.Sleep(1250);
       }
