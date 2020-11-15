@@ -9,28 +9,26 @@ namespace ConsoleApp1 {
   public class Program {
     private static string bitmexKey = System.IO.File.ReadAllText(@"C:\bitmexKey.txt");
     private static string bitmexSecret = System.IO.File.ReadAllText(@"C:\bitmexSecret.txt");
-    private static double BTC_per_trade = 0.02;
+    private const double BTC_per_trade = 0.02;
+    private double stopLoss = 0;
 
     private static void Main(string[] args) {
       Program p = new Program();
       p.Run(args);
     }
 
-
-
     private void Run(string[] args) {
       BitMEXApi bitmex = new BitMEXApi(bitmexKey, bitmexSecret);
-
-
       DateTime now = DateTime.Now;
       
-
       while(true) {
+
         var openOrderReponse = bitmex.GetOpenOrder();
         var order = JsonConvert.DeserializeObject<List<OpenOrder>>(openOrderReponse.ResponseData).FirstOrDefault();
         try { now = openOrderReponse.TimeStampUTC; } catch(Exception e) {
           Console.WriteLine(e);
         }
+
         if (order == null) {
           if(now.Minute == 00) {
             Log(now.ToString());
@@ -61,6 +59,13 @@ namespace ConsoleApp1 {
         }else {
           var priceResponse = bitmex.GetPrice();
           var priceList = JsonConvert.DeserializeObject<List<Trade>>(priceResponse.ResponseData);
+          if(order.CurrentQty<0) {
+            //Short
+            if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 1.01;
+          } else {
+            //Long
+            if(stopLoss == 0) stopLoss = (double)order.AvgCostPrice * 0.99;
+          }
 
         }
         /*
