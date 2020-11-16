@@ -21,7 +21,7 @@ namespace ConsoleApp1 {
     public DateTime Timestamp { get; set; }
   }
   public class BitMEXApi {
-    private const string domain = "https://testnet.bitmex.com";
+    private const string domain = "https://www.bitmex.com";
     private string apiKey;
     private string apiSecret;
     private int rateLimit;
