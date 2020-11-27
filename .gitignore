@@ -28,3 +28,8 @@ ConsoleApp1/obj/Debug/netcoreapp3.0/ConsoleApp1.pdb
 ConsoleApp1/obj/project.assets.json
 /.vs
 /ConsoleApp1/obj
+/TradingBot/TB.BitMex/obj
+/TradingBot/TB.BitMex/bin/Debug/netcoreapp3.1
+/TradingBot/.vs/TradingBot/v16
+/TradingBot/TB.Console/obj
+/TradingBot/TB.Strategies/obj
